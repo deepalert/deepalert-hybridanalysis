@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 
@@ -30,6 +31,10 @@ func (x *handler) callback(ctx context.Context, attr deepalert.Attribute) (*deep
 	switch {
 	case attr.Match(deepalert.CtxRemote, deepalert.TypeIPAddr):
 		key = "host"
+		if nil == net.ParseIP(attr.Value) {
+			logger.With("attr", attr).Info("TypeIPAddr, but the value is not valid IP address")
+			return nil, nil
+		}
 
 	case attr.Type == deepalert.TypeDomainName:
 		key = "domain"
